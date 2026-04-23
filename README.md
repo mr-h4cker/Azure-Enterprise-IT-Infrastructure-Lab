@@ -25,6 +25,74 @@ The architecture follows a 3-tier design with separate web, application, and dat
 
 ---
 
+## 🌐 Network Configuration
+
+### 🔹 Virtual Network Creation
+
+A Virtual Network (VNet) was created to simulate a private enterprise network in Azure.
+
+* Address space: **10.0.0.0/16**
+
+![VNet Basics](screenshots/01-vnet-basics.png)
+
+![Address Space](screenshots/02-vnet-address-space.png)
+
+---
+
+### 🔹 Subnet Configuration
+
+The network was divided into three subnets to separate different layers of the architecture:
+
+* **Web Subnet (10.0.1.0/24)** → Public-facing web layer
+* **App Subnet (10.0.2.0/24)** → Internal application services
+* **DB Subnet (10.0.3.0/24)** → Protected data layer
+
+![Web Subnet](screenshots/03-web-subnet.png)
+
+![App Subnet](screenshots/04-app-subnet.png)
+
+![DB Subnet](screenshots/05-db-subnet.png)
+
+![All Subnets](screenshots/06-all-subnets.png)
+
+---
+
+### 🔹 Network Security Groups (NSGs)
+
+Network Security Groups were created to control traffic between subnets and enforce security rules.
+
+![NSG Web](screenshots/07-nsg-web-created.png)
+
+![NSG App](screenshots/08-nsg-app-created.png)
+
+![NSG DB](screenshots/09-nsg-db-created.png)
+
+---
+
+### 🔹 Security Rules Configuration
+
+Each subnet was secured with specific inbound rules:
+
+* Web subnet allows HTTP traffic from the internet
+* App subnet allows traffic only from the web subnet
+* DB subnet allows traffic only from the application subnet
+
+![NSG Web Rules](screenshots/10-nsg-web-rules.png)
+
+![NSG App Rules](screenshots/11-nsg-app-rules.png)
+
+![NSG DB Rules](screenshots/12-nsg-db-rules.png)
+
+---
+
+### 🔹 NSG Association
+
+Each NSG was associated with its corresponding subnet to enforce security boundaries.
+
+![NSG Association](screenshots/13-nsg-subnet-association.png)
+
+---
+
 ##  Objectives
 
 * Simulate a real-world enterprise IT environment
