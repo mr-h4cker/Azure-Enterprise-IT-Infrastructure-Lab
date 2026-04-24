@@ -1,6 +1,6 @@
 # Azure Enterprise IT Infrastructure Lab
 
-##  Overview
+## 📌 Overview
 
 This project demonstrates the design and implementation of a cloud-based enterprise IT infrastructure using Microsoft Azure. The goal is to simulate a real-world environment that includes networking, system deployment, security, and application integration.
 
@@ -8,13 +8,13 @@ The architecture follows a 3-tier design with separate web, application, and dat
 
 ---
 
-##  Architecture Diagram
+## 🧠 Architecture Diagram
 
 ![Architecture Diagram](diagrams/00-architecture-diagram.png)
 
 ---
 
-##  Architecture Summary
+## 🏗️ Architecture Summary
 
 * **Web Layer:** Two Linux-based virtual machines running nginx behind an Azure Load Balancer for high availability
 * **Application Layer:** Java-based Help Desk system hosted on a virtual machine
@@ -117,22 +117,13 @@ Nginx was installed on both virtual machines to serve web content.
 
 ---
 
-### 🔹 Web Page Testing
-
-Each server was configured with a custom webpage to identify which server is responding.
-
-![Web Server 1 Output](screenshots/19-vm-web-1-custom-page.png)
-
-![Web Server 2 Output](screenshots/21-vm-web-2-custom-page.png)
-
----
 ### 🔹 Custom Web Interface
 
-Each web server was configured with a custom HTML page to clearly identify which server is responding during load balancing.
+Each web server was configured with a custom HTML page to clearly identify which server is responding.
 
-The page also provides a brief overview of the project to simulate a real-world production environment.
+The interface also provides a brief overview of the project, simulating a real-world production environment.
 
-* Web Server 1 displays primary response
+* Web Server 1 handles primary responses
 * Web Server 2 supports redundancy and load sharing
 
 ![Web Server 1 Page](screenshots/19-vm-web-1-custom-page.png)
@@ -149,7 +140,7 @@ The HTML files used for the web servers are included in the repository:
 /web-content/
 ```
 
-These pages were designed to provide a clean and professional interface, making it easier to visualize load balancing behavior and demonstrate the project to others.
+---
 
 ### 🔹 Purpose
 
@@ -159,7 +150,67 @@ These pages were designed to provide a clean and professional interface, making 
 
 ---
 
-##  Objectives
+## ⚖️ Load Balancer Configuration
+
+### 🔹 Overview
+
+An Azure Load Balancer was configured to distribute incoming traffic across multiple web servers, ensuring high availability and fault tolerance.
+
+![Load Balancer Setup](screenshots/22-load-balancer-basics.png)
+
+---
+
+### 🔹 Backend Pool
+
+Both web servers were added to the backend pool:
+
+* vm-web-1
+* vm-web-2
+
+![Backend Pool](screenshots/24-backend-pool.png)
+
+---
+
+### 🔹 Health Probe
+
+A health probe was configured to monitor the availability of each web server.
+
+* Protocol: HTTP
+* Port: 80
+
+![Health Probe](screenshots/25-health-probe.png)
+
+---
+
+### 🔹 Load Balancing Rule
+
+Traffic on port 80 is distributed across both servers.
+
+![Load Balancer Rule](screenshots/26-load-balancer-rule.png)
+
+---
+
+### 🔹 Testing
+
+The load balancer was tested by accessing its public IP and refreshing the page multiple times.
+
+The response alternates between Web Server 1 and Web Server 2, confirming successful load balancing.
+
+![LB Test 1](screenshots/27-load-balancer-test-1.png)
+
+![LB Test 2](screenshots/28-load-balancer-test-2.png)
+
+---
+
+### 🔹 Purpose
+
+* Distributes incoming traffic across multiple servers
+* Prevents a single point of failure
+* Improves system reliability and availability
+
+---
+
+## 🎯 Objectives
 
 * Simulate a real-world enterprise IT environment
 * Apply networking concepts such as subnets, traffic flow, and access control
