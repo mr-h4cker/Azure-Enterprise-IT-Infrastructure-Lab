@@ -93,6 +93,72 @@ Each NSG was associated with its corresponding subnet to enforce security bounda
 
 ---
 
+## 💻 Web Server Deployment
+
+### 🔹 Virtual Machine Setup
+
+Two Linux-based virtual machines were deployed in the Web Subnet to host web services.
+
+* **VM 1:** vm-web-1
+* **VM 2:** vm-web-2
+* OS: Ubuntu Server 22.04
+
+![VM Web 1 Setup](screenshots/14-vm-web-1-basics.png)
+
+![VM Web 1 Network](screenshots/15-vm-web-1-network.png)
+
+---
+
+### 🔹 Web Server Configuration
+
+Nginx was installed on both virtual machines to serve web content.
+
+![Nginx Installation](screenshots/17-nginx-installed.png)
+
+---
+
+### 🔹 Web Page Testing
+
+Each server was configured with a custom webpage to identify which server is responding.
+
+![Web Server 1 Output](screenshots/19-vm-web-1-custom-page.png)
+
+![Web Server 2 Output](screenshots/21-vm-web-2-custom-page.png)
+
+---
+### 🔹 Custom Web Interface
+
+Each web server was configured with a custom HTML page to clearly identify which server is responding during load balancing.
+
+The page also provides a brief overview of the project to simulate a real-world production environment.
+
+* Web Server 1 displays primary response
+* Web Server 2 supports redundancy and load sharing
+
+![Web Server 1 Page](screenshots/19-vm-web-1-custom-page.png)
+
+![Web Server 2 Page](screenshots/21-vm-web-2-custom-page.png)
+
+---
+
+### 🔹 Web Content
+
+The HTML files used for the web servers are included in the repository:
+
+```
+/web-content/
+```
+
+These pages were designed to provide a clean and professional interface, making it easier to visualize load balancing behavior and demonstrate the project to others.
+
+### 🔹 Purpose
+
+* Enables load balancing across multiple servers
+* Provides redundancy in case one server fails
+* Simulates a production web environment
+
+---
+
 ##  Objectives
 
 * Simulate a real-world enterprise IT environment
