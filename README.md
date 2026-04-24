@@ -41,7 +41,7 @@ A Virtual Network (VNet) was created to simulate a private enterprise network in
 
 ### 🔹 Subnet Configuration
 
-The network was divided into three subnets to separate different layers of the architecture:
+The network was divided into three subnets:
 
 * **Web Subnet (10.0.1.0/24)** → Public-facing web layer
 * **App Subnet (10.0.2.0/24)** → Internal application services
@@ -59,7 +59,7 @@ The network was divided into three subnets to separate different layers of the a
 
 ### 🔹 Network Security Groups (NSGs)
 
-Network Security Groups were created to control traffic between subnets and enforce security rules.
+Network Security Groups were configured to control traffic between layers.
 
 ![NSG Web](screenshots/07-nsg-web-created.png)
 
@@ -69,9 +69,7 @@ Network Security Groups were created to control traffic between subnets and enfo
 
 ---
 
-### 🔹 Security Rules Configuration
-
-Each subnet was secured with specific inbound rules:
+### 🔹 Security Rules
 
 * Web subnet allows HTTP traffic from the internet
 * App subnet allows traffic only from the web subnet
@@ -87,7 +85,7 @@ Each subnet was secured with specific inbound rules:
 
 ### 🔹 NSG Association
 
-Each NSG was associated with its corresponding subnet to enforce security boundaries.
+Each NSG was linked to its respective subnet.
 
 ![NSG Association](screenshots/13-nsg-subnet-association.png)
 
@@ -95,13 +93,12 @@ Each NSG was associated with its corresponding subnet to enforce security bounda
 
 ## 💻 Web Server Deployment
 
-### 🔹 Virtual Machine Setup
+### 🔹 Virtual Machines
 
-Two Linux-based virtual machines were deployed in the Web Subnet to host web services.
+Two Ubuntu servers were deployed:
 
-* **VM 1:** vm-web-1
-* **VM 2:** vm-web-2
-* OS: Ubuntu Server 22.04
+* vm-web-1
+* vm-web-2
 
 ![VM Web 1 Setup](screenshots/14-vm-web-1-basics.png)
 
@@ -109,34 +106,35 @@ Two Linux-based virtual machines were deployed in the Web Subnet to host web ser
 
 ---
 
-### 🔹 Web Server Configuration
+### 🔹 Install Nginx
 
-Nginx was installed on both virtual machines to serve web content.
+```bash id="n1"}
+sudo apt update
+sudo apt install nginx -y
+sudo systemctl start nginx
+sudo systemctl enable nginx
+```
 
-![Nginx Installation](screenshots/17-nginx-installed.png)
+![Nginx Installed](screenshots/17-nginx-installed.png)
 
 ---
 
 ### 🔹 Custom Web Interface
 
-Each web server was configured with a custom HTML page to clearly identify which server is responding.
+Each server displays a unique page:
 
-The interface also provides a brief overview of the project, simulating a real-world production environment.
+* Web Server 1 → primary
+* Web Server 2 → redundancy
 
-* Web Server 1 handles primary responses
-* Web Server 2 supports redundancy and load sharing
+![Web Server 1](screenshots/19-vm-web-1-custom-page.png)
 
-![Web Server 1 Page](screenshots/19-vm-web-1-custom-page.png)
-
-![Web Server 2 Page](screenshots/21-vm-web-2-custom-page.png)
+![Web Server 2](screenshots/21-vm-web-2-custom-page.png)
 
 ---
 
 ### 🔹 Web Content
 
-The HTML files used for the web servers are included in the repository:
-
-```
+```id="n2"}
 /web-content/
 ```
 
@@ -144,9 +142,9 @@ The HTML files used for the web servers are included in the repository:
 
 ### 🔹 Purpose
 
-* Enables load balancing across multiple servers
-* Provides redundancy in case one server fails
-* Simulates a production web environment
+* Enables load balancing
+* Provides redundancy
+* Simulates production setup
 
 ---
 
@@ -154,15 +152,13 @@ The HTML files used for the web servers are included in the repository:
 
 ### 🔹 Overview
 
-An Azure Load Balancer was configured to distribute incoming traffic across multiple web servers, ensuring high availability and fault tolerance.
+Azure Load Balancer distributes traffic across both web servers.
 
-![Load Balancer Setup](screenshots/22-load-balancer-basics.png)
+![Load Balancer](screenshots/22-load-balancer-basics.png)
 
 ---
 
 ### 🔹 Backend Pool
-
-Both web servers were added to the backend pool:
 
 * vm-web-1
 * vm-web-2
@@ -173,28 +169,24 @@ Both web servers were added to the backend pool:
 
 ### 🔹 Health Probe
 
-A health probe was configured to monitor the availability of each web server.
-
-* Protocol: HTTP
-* Port: 80
+* HTTP
+* Port 80
 
 ![Health Probe](screenshots/25-health-probe.png)
 
 ---
 
-### 🔹 Load Balancing Rule
+### 🔹 Rule
 
-Traffic on port 80 is distributed across both servers.
+Traffic on port 80 is balanced across servers.
 
-![Load Balancer Rule](screenshots/26-load-balancer-rule.png)
+![LB Rule](screenshots/26-load-balancer-rule.png)
 
 ---
 
 ### 🔹 Testing
 
-The load balancer was tested by accessing its public IP and refreshing the page multiple times.
-
-The response alternates between Web Server 1 and Web Server 2, confirming successful load balancing.
+Refreshing shows different servers responding.
 
 ![LB Test 1](screenshots/27-load-balancer-test-1.png)
 
@@ -202,19 +194,119 @@ The response alternates between Web Server 1 and Web Server 2, confirming succes
 
 ---
 
-### 🔹 Purpose
+## 💻 Application Layer Deployment
 
-* Distributes incoming traffic across multiple servers
-* Prevents a single point of failure
-* Improves system reliability and availability
+### 🔹 Setup
+
+Application server deployed in App Subnet:
+
+* vm-app-1
+* Ubuntu Server
+
+![App VM Setup](screenshots/29-vm-app-basics.png)
+
+![App VM Network](screenshots/30-vm-app-network.png)
+
+![App Connected](screenshots/31-vm-app-connected.png)
+
+---
+
+### 🔹 Install Java
+
+```bash id="n3"}
+sudo apt update
+sudo apt install openjdk-17-jdk -y
+java -version
+```
+
+![Java Installed](screenshots/32-java-installed.png)
+
+---
+
+### 🔹 Deploy Project
+
+```bash id="n4"}
+git clone https://github.com/mr-h4cker/helpdesk-ticket-system-azure.git
+cd helpdesk-ticket-system-azure
+ls
+find src -name "*.java"
+
+wget https://repo1.maven.org/maven2/com/microsoft/sqlserver/mssql-jdbc/12.8.1.jre11/mssql-jdbc-12.8.1.jre11.jar
+```
+
+![Clone + Driver](screenshots/33-git-clone-and-jdbc-driver.png)
+
+---
+
+### 🔹 Compile & Run
+
+```bash id="n5"}
+mkdir -p out
+javac -cp "mssql-jdbc-12.8.1.jre11.jar" -d out $(find src -name "*.java")
+java -cp "out:mssql-jdbc-12.8.1.jre11.jar" Main
+```
+
+![Compile](screenshots/34-compile-project.png)
+
+---
+
+### 🔹 Success
+
+Application connects to Azure SQL and runs:
+
+![Success](screenshots/36-app-connected-success.png)
+
+---
+
+## 🛠️ Troubleshooting & Challenges
+
+### 🔹 JDBC Driver Issue
+
+The application initially failed due to missing JDBC driver.
+
+**Fix:**
+Downloaded driver and added to classpath.
+
+---
+
+### 🔹 Azure SQL Firewall Issue
+
+Application could not connect due to blocked IP.
+
+![Firewall Error](screenshots/35-sql-firewall-error.png)
+
+---
+
+### 🔍 Root Cause
+
+VM IP was not allowed in Azure SQL firewall.
+
+---
+
+### 🔹 Solution
+
+```bash id="n6"}
+curl ifconfig.me
+```
+
+Added VM IP to Azure SQL firewall → connection successful.
+
+---
+
+### 💡 Key Learnings
+
+* Cloud firewall rules matter
+* VM IP ≠ local IP
+* Dependencies must be managed
+* Real debugging builds real skills
 
 ---
 
 ## 🎯 Objectives
 
-* Simulate a real-world enterprise IT environment
-* Apply networking concepts such as subnets, traffic flow, and access control
-* Integrate application and database systems in a cloud environment
-* Implement high availability and security best practices
+* Simulate enterprise IT environment
+* Apply networking & security concepts
+* Deploy real applications in cloud
+* Implement high availability architecture
 
 ---
