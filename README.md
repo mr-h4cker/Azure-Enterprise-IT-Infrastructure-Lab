@@ -257,6 +257,66 @@ Application connects to Azure SQL and runs:
 ![Success](screenshots/36-app-connected-success.png)
 
 ---
+## 🪟 Identity Services (Active Directory & DNS)
+
+### 🔹 Overview
+
+A Windows Server virtual machine was deployed in the App Subnet to simulate enterprise identity and internal network services.
+
+* **VM:** vm-ad-1
+* **OS:** Windows Server 2022
+* **Subnet:** app-subnet
+
+![Windows VM Setup](screenshots/40-windows-vm-basics.png)
+
+![Windows VM Network](screenshots/41-windows-vm-network.png)
+
+---
+
+### 🔹 Remote Access
+
+The server was accessed using Remote Desktop Protocol (RDP).
+
+![RDP Connection](screenshots/42-windows-rdp-connected.png)
+
+---
+
+### 🔹 Role Installation
+
+Active Directory Domain Services (AD DS) and DNS Server roles were installed.
+
+![AD DNS Roles](screenshots/43-add-ad-dns-roles.png)
+
+---
+
+### 🔹 Domain Controller Configuration
+
+The server was promoted to a Domain Controller.
+
+* Domain: `itinfra.local`
+
+![Promote Domain Controller](screenshots/44-promote-domain-controller.png)
+
+![Domain Created](screenshots/45-domain-created.png)
+
+---
+
+### 🔹 DNS Configuration
+
+DNS Manager was used to verify internal name resolution.
+
+![DNS Manager](screenshots/46-dns-manager.png)
+
+---
+
+### 🔹 Purpose
+
+* Simulates enterprise identity management
+* Provides authentication services
+* Enables internal DNS resolution
+* Enhances realism of the multi-tier architecture
+
+---
 
 ## 🛠️ Troubleshooting & Challenges
 
