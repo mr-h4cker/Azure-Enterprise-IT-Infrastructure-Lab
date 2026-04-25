@@ -18,7 +18,7 @@ The architecture follows a 3-tier design with separate web, application, and dat
 
 * **Web Layer:** Two Linux-based virtual machines running nginx behind an Azure Load Balancer for high availability
 * **Application Layer:** Java-based Help Desk system hosted on a virtual machine
-* **Identity Services:** Windows Server providing Active Directory and DNS services
+* **Identity Services:** Windows Server with Active Directory and DNS for internal infrastructure services
 * **Data Layer:** Azure SQL Database for managed and scalable data storage
 * **Networking:** Segmented Virtual Network with dedicated subnets and Network Security Groups (NSGs)
 * **Security:** Controlled traffic flow between layers using NSG rules
@@ -108,7 +108,7 @@ Two Ubuntu servers were deployed:
 
 ### 🔹 Install Nginx
 
-```bash id="n1"}
+```bash
 sudo apt update
 sudo apt install nginx -y
 sudo systemctl start nginx
@@ -132,19 +132,11 @@ Each server displays a unique page:
 
 ---
 
-### 🔹 Web Content
-
-```id="n2"}
-/web-content/
-```
-
----
-
 ### 🔹 Purpose
 
 * Enables load balancing
 * Provides redundancy
-* Simulates production setup
+* Simulates production environment
 
 ---
 
@@ -176,7 +168,7 @@ Azure Load Balancer distributes traffic across both web servers.
 
 ---
 
-### 🔹 Rule
+### 🔹 Load Balancing Rule
 
 Traffic on port 80 is balanced across servers.
 
@@ -213,7 +205,7 @@ Application server deployed in App Subnet:
 
 ### 🔹 Install Java
 
-```bash id="n3"}
+```bash
 sudo apt update
 sudo apt install openjdk-17-jdk -y
 java -version
@@ -225,11 +217,9 @@ java -version
 
 ### 🔹 Deploy Project
 
-```bash id="n4"}
+```bash
 git clone https://github.com/mr-h4cker/helpdesk-ticket-system-azure.git
 cd helpdesk-ticket-system-azure
-ls
-find src -name "*.java"
 
 wget https://repo1.maven.org/maven2/com/microsoft/sqlserver/mssql-jdbc/12.8.1.jre11/mssql-jdbc-12.8.1.jre11.jar
 ```
@@ -240,7 +230,7 @@ wget https://repo1.maven.org/maven2/com/microsoft/sqlserver/mssql-jdbc/12.8.1.jr
 
 ### 🔹 Compile & Run
 
-```bash id="n5"}
+```bash
 mkdir -p out
 javac -cp "mssql-jdbc-12.8.1.jre11.jar" -d out $(find src -name "*.java")
 java -cp "out:mssql-jdbc-12.8.1.jre11.jar" Main
@@ -252,69 +242,63 @@ java -cp "out:mssql-jdbc-12.8.1.jre11.jar" Main
 
 ### 🔹 Success
 
-Application connects to Azure SQL and runs:
+Application connects to Azure SQL and runs successfully.
 
 ![Success](screenshots/36-app-connected-success.png)
 
 ---
+
 ## 🪟 Identity Services (Active Directory & DNS)
 
 ### 🔹 Overview
 
-A Windows Server virtual machine was deployed in the App Subnet to simulate enterprise identity and internal network services.
-
-* **VM:** vm-ad-1
-* **OS:** Windows Server 2022
-* **Subnet:** app-subnet
-
-![Windows VM Setup](screenshots/40-windows-vm-basics.png)
-
-![Windows VM Network](screenshots/41-windows-vm-network.png)
+A Windows Server VM was deployed to simulate enterprise identity and internal DNS services.
 
 ---
 
-### 🔹 Remote Access
+### 🔹 DNS Integration
 
-The server was accessed using Remote Desktop Protocol (RDP).
+Internal DNS was configured to allow communication using hostnames instead of IP addresses.
 
-![RDP Connection](screenshots/42-windows-rdp-connected.png)
+* `appserver.itinfra.local`
+* `web1.itinfra.local`
+* `web2.itinfra.local`
 
----
-
-### 🔹 Role Installation
-
-Active Directory Domain Services (AD DS) and DNS Server roles were installed.
-
-![AD DNS Roles](screenshots/43-add-ad-dns-roles.png)
+![DNS Records](screenshots/47-dns-records-created.png)
 
 ---
 
-### 🔹 Domain Controller Configuration
+### 🔹 Linux DNS Configuration
 
-The server was promoted to a Domain Controller.
+The application server was configured to use the Windows Server as its DNS resolver.
 
-* Domain: `itinfra.local`
-
-![Promote Domain Controller](screenshots/44-promote-domain-controller.png)
-
-![Domain Created](screenshots/45-domain-created.png)
+![DNS Config Linux](screenshots/48-dns-config-linux.png)
 
 ---
 
-### 🔹 DNS Configuration
+### 🔹 DNS Resolution Testing
 
-DNS Manager was used to verify internal name resolution.
+Connectivity was verified using hostnames.
 
-![DNS Manager](screenshots/46-dns-manager.png)
+![DNS Test](screenshots/49-dns-resolution-test.png)
+
+---
+
+### 🔹 Note on Azure SQL
+
+Azure SQL is accessed using its FQDN:
+
+```
+<server-name>.database.windows.net
+```
 
 ---
 
 ### 🔹 Purpose
 
-* Simulates enterprise identity management
-* Provides authentication services
-* Enables internal DNS resolution
-* Enhances realism of the multi-tier architecture
+* Provides internal name resolution
+* Simulates enterprise DNS
+* Enables hostname-based communication
 
 ---
 
@@ -324,9 +308,6 @@ DNS Manager was used to verify internal name resolution.
 
 The application initially failed due to missing JDBC driver.
 
-**Fix:**
-Downloaded driver and added to classpath.
-
 ---
 
 ### 🔹 Azure SQL Firewall Issue
@@ -335,43 +316,51 @@ Application could not connect due to blocked IP.
 
 ![Firewall Error](screenshots/35-sql-firewall-error.png)
 
----
+**Fix:**
+Used:
 
-### 🔍 Root Cause
-
-VM IP was not allowed in Azure SQL firewall.
-
----
-
-### 🔹 Solution
-
-```bash id="n6"}
+```bash
 curl ifconfig.me
 ```
 
-Added VM IP to Azure SQL firewall → connection successful.
+Added VM IP to Azure firewall.
+
+---
+
+### 🔹 DNS Configuration Issue
+
+Initially used public IPs in DNS records.
+
+**Issue:**
+
+* Name resolved
+* Connection failed
+
+**Fix:**
+
+* Switched to private IPs
+* Verified with:
+
+```bash
+ping appserver.itinfra.local
+```
 
 ---
 
 ### 💡 Key Learnings
 
-* Cloud firewall rules matter
-* VM IP ≠ local IP
-* Dependencies must be managed
-* Real debugging builds real skills
+* DNS resolution ≠ connectivity
+* Private IPs are required for internal communication
+* Cloud firewall rules must be configured correctly
+* Debugging is a key part of real deployments
 
 ---
+
 ## 🗄️ Azure SQL Database Integration
 
 ### 🔹 Overview
 
-An Azure SQL Database was used as the data layer for the application. This provides a managed, scalable, and secure database service without requiring manual server maintenance.
-
----
-
-### 🔹 Database Setup
-
-A SQL Server and database were created in Azure.
+Azure SQL was used as the data layer.
 
 ![SQL Overview](screenshots/37-azure-sql-overview.png)
 
@@ -381,56 +370,53 @@ A SQL Server and database were created in Azure.
 
 ### 🔹 Firewall Configuration
 
-Access to the database was controlled using firewall rules.
-
-* Only trusted IP addresses are allowed
-* The application server’s public IP was added
-
 ![SQL Firewall](screenshots/39-sql-firewall-settings.png)
 
 ---
 
-### 🔹 Java Integration (JDBC)
+### 🔹 JDBC Integration
 
-The application connects to Azure SQL using JDBC.
-
-Example connection setup:
-
-```java id="sql1"
-String url = "jdbc:sqlserver://<server-name>.database.windows.net:1433;"
-           + "database=<db-name>;"
-           + "user=<username>;"
-           + "password=<password>;"
-           + "encrypt=true;"
-           + "trustServerCertificate=false;"
-           + "loginTimeout=30;";
+```java
+jdbc:sqlserver://<server-name>.database.windows.net:1433;
 ```
-
----
-
-### 🔹 Connection Flow
-
-1. Application runs on VM
-2. JDBC driver initiates connection
-3. Azure SQL validates IP via firewall
-4. Database connection established
 
 ---
 
 ### 🔹 Purpose
 
-* Provides persistent data storage
-* Separates application logic from data layer
-* Simulates real-world cloud database usage
+* Provides persistent storage
+* Separates data layer from application
+* Simulates real cloud database usage
 
 ---
 
-
 ## 🎯 Objectives
 
-* Simulate enterprise IT environment
-* Apply networking & security concepts
+* Simulate enterprise IT infrastructure
+* Apply networking and security concepts
 * Deploy real applications in cloud
 * Implement high availability architecture
+
+---
+
+## 🧰 Skills Demonstrated
+
+* Azure Networking (VNet, Subnets, NSG)
+* Linux Server Administration
+* Windows Server (AD & DNS)
+* Load Balancing & High Availability
+* Java Deployment & Debugging
+* JDBC & Database Connectivity
+* Azure SQL Database
+* Cloud Troubleshooting
+
+---
+
+## 🚀 Future Improvements
+
+* Convert Help Desk CLI into web-based application (Spring Boot API)
+* Integrate web layer with application layer
+* Implement Azure Private Endpoint for SQL
+* Add monitoring and alerting
 
 ---
