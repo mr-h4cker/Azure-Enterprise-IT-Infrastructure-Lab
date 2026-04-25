@@ -301,6 +301,70 @@ Added VM IP to Azure SQL firewall → connection successful.
 * Real debugging builds real skills
 
 ---
+## 🗄️ Azure SQL Database Integration
+
+### 🔹 Overview
+
+An Azure SQL Database was used as the data layer for the application. This provides a managed, scalable, and secure database service without requiring manual server maintenance.
+
+---
+
+### 🔹 Database Setup
+
+A SQL Server and database were created in Azure.
+
+![SQL Overview](screenshots/37-azure-sql-overview.png)
+
+![SQL Database](screenshots/38-azure-sql-database.png)
+
+---
+
+### 🔹 Firewall Configuration
+
+Access to the database was controlled using firewall rules.
+
+* Only trusted IP addresses are allowed
+* The application server’s public IP was added
+
+![SQL Firewall](screenshots/39-sql-firewall-settings.png)
+
+---
+
+### 🔹 Java Integration (JDBC)
+
+The application connects to Azure SQL using JDBC.
+
+Example connection setup:
+
+```java id="sql1"
+String url = "jdbc:sqlserver://<server-name>.database.windows.net:1433;"
+           + "database=<db-name>;"
+           + "user=<username>;"
+           + "password=<password>;"
+           + "encrypt=true;"
+           + "trustServerCertificate=false;"
+           + "loginTimeout=30;";
+```
+
+---
+
+### 🔹 Connection Flow
+
+1. Application runs on VM
+2. JDBC driver initiates connection
+3. Azure SQL validates IP via firewall
+4. Database connection established
+
+---
+
+### 🔹 Purpose
+
+* Provides persistent data storage
+* Separates application logic from data layer
+* Simulates real-world cloud database usage
+
+---
+
 
 ## 🎯 Objectives
 
