@@ -1,58 +1,136 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Azure IT Infrastructure Lab</title>
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #0f172a, #1e293b);
-            color: white;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            text-align: center;
-        }
-        .container {
-            max-width: 600px;
-        }
-        h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-        }
-        h2 {
-            color: #38bdf8;
-            margin-bottom: 20px;
-        }
-        p {
-            font-size: 1.1rem;
-            color: #cbd5f5;
-        }
-        .badge {
-            margin-top: 20px;
-            padding: 10px 20px;
-            background: #22c55e;
-            color: black;
-            border-radius: 20px;
-            display: inline-block;
-            font-weight: bold;
-        }
-    </style>
+<meta charset="UTF-8">
+<title>Azure IT Infrastructure Lab</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #0f172a, #1e293b);
+    color: white;
+    min-height: 100vh;
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+h1 {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+}
+
+h2 {
+    color: #38bdf8;
+    margin-top: 25px;
+}
+
+p {
+    font-size: 1.1rem;
+    color: #cbd5f5;
+}
+
+.badge {
+    margin-top: 20px;
+    padding: 10px 20px;
+    background: #22c55e;
+    color: black;
+    border-radius: 20px;
+    display: inline-block;
+    font-weight: bold;
+}
+
+.ticket {
+    background: #1e293b;
+    padding: 18px;
+    margin: 14px auto;
+    border-radius: 12px;
+    text-align: left;
+    max-width: 750px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+}
+
+.ticket strong {
+    color: #ffffff;
+}
+
+.ticket-title {
+    color: #38bdf8;
+    font-size: 1.1rem;
+    font-weight: bold;
+}
+
+.footer-note {
+    margin-top: 30px;
+    color: #94a3b8;
+    font-size: 0.95rem;
+}
+</style>
 </head>
+
 <body>
-    <div class="container">
-        <h1>Azure Enterprise IT Infrastructure Lab</h1>
-        <h2>Web Server 1</h2>
-        <p>
-            This server is part of a cloud-based 3-tier architecture built in Microsoft Azure.
-        </p>
-        <p>
-            The project demonstrates networking, load balancing, system deployment,
-            and secure communication between web, application, and database layers.
-        </p>
-        <div class="badge">System Status: Running</div>
-    </div>
+
+<div class="container">
+
+<h1>Azure Enterprise IT Infrastructure Lab</h1>
+<h2>Web Server 1</h2>
+
+<p>
+This server is part of a cloud-based 3-tier architecture built in Microsoft Azure.
+</p>
+
+<p>
+The project demonstrates networking, load balancing, system deployment,
+and secure communication between web, application, and database layers.
+</p>
+
+<div class="badge">System Status: Running</div>
+
+<h2>Live Tickets from Azure SQL</h2>
+<div id="tickets">Loading tickets...</div>
+
+<p class="footer-note">
+Traffic flow: Load Balancer → Nginx Web Server → Java API → Azure SQL Database
+</p>
+
+<script>
+fetch('/api/tickets')
+.then(response => {
+    if (!response.ok) {
+        throw new Error('HTTP error ' + response.status);
+    }
+    return response.json();
+})
+.then(data => {
+    const box = document.getElementById('tickets');
+
+    if (!Array.isArray(data)) {
+        box.innerHTML = '<p>Could not load tickets.</p>';
+        return;
+    }
+
+    box.innerHTML = data.map(ticket => `
+        <div class="ticket">
+            <div class="ticket-title">Ticket #${ticket.ticket_id}: ${ticket.title}</div>
+            <br>
+            <strong>Status:</strong> ${ticket.status}<br>
+            <strong>Priority:</strong> ${ticket.priority}<br>
+            <strong>Description:</strong> ${ticket.description}
+        </div>
+    `).join('');
+})
+.catch(error => {
+    document.getElementById('tickets').innerHTML =
+        '<p>Error loading tickets: ' + error.message + '</p>';
+});
+</script>
+
+</div>
+
 </body>
 </html>
