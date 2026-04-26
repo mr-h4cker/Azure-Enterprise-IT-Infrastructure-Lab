@@ -263,7 +263,7 @@ Browser → Web Server → API → Azure SQL
 
 ### 🔹 Output
 
-![UI Top](screenshots/55-helpdesk-web-ui-top.png)
+![UI Top](screenshots/55-helpdesk-web-top.png)
 
 ![UI Bottom](screenshots/56-helpdesk-web-ui-bottom.png)
 
