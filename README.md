@@ -2,9 +2,23 @@
 
 ## 📌 Overview
 
-This project demonstrates the design and implementation of a cloud-based enterprise IT infrastructure using Microsoft Azure. The goal is to simulate a real-world environment that includes networking, system deployment, security, and application integration.
+This project demonstrates the design and implementation of a **cloud-based enterprise IT infrastructure** using Microsoft Azure.
 
-The architecture follows a 3-tier design with separate web, application, and data layers to ensure scalability, security, and maintainability.
+The goal was to simulate a real-world production environment by integrating:
+
+* Networking
+* Security
+* Application deployment
+* Database systems
+* Identity services
+
+The architecture follows a **3-tier design**:
+
+```text
+Web Layer → Application Layer → Data Layer
+```
+
+This ensures scalability, isolation, and maintainability — just like real enterprise systems.
 
 ---
 
@@ -16,365 +30,132 @@ The architecture follows a 3-tier design with separate web, application, and dat
 
 ## 🏗️ Architecture Summary
 
-* **Web Layer:** Two Linux-based virtual machines running nginx behind an Azure Load Balancer for high availability
-* **Application Layer:** Java-based Help Desk system hosted on a virtual machine
-* **Identity Services:** Windows Server with Active Directory and DNS for internal infrastructure services
-* **Data Layer:** Azure SQL Database for managed and scalable data storage
-* **Networking:** Segmented Virtual Network with dedicated subnets and Network Security Groups (NSGs)
-* **Security:** Controlled traffic flow between layers using NSG rules
+* **Web Layer:**
+  Two Linux VMs running nginx behind an Azure Load Balancer (high availability)
+
+* **Application Layer:**
+  Java-based Help Desk system running on a VM
+
+* **Identity Services:**
+  Windows Server providing Active Directory & DNS
+
+* **Data Layer:**
+  Azure SQL Database (managed cloud database)
+
+* **Networking:**
+  Virtual Network segmented into subnets (Web, App, DB)
+
+* **Security:**
+  Network Security Groups (NSGs) controlling traffic between layers
 
 ---
 
 ## 🌐 Network Configuration
 
-### 🔹 Virtual Network Creation
+### 🔹 Virtual Network
 
-A Virtual Network (VNet) was created to simulate a private enterprise network in Azure.
-
-* Address space: **10.0.0.0/16**
+* Address Space: `10.0.0.0/16`
 
 ![VNet Basics](screenshots/01-vnet-basics.png)
 
-![Address Space](screenshots/02-vnet-address-space.png)
-
 ---
 
-### 🔹 Subnet Configuration
+### 🔹 Subnets
 
-The network was divided into three subnets:
-
-* **Web Subnet (10.0.1.0/24)** → Public-facing web layer
-* **App Subnet (10.0.2.0/24)** → Internal application services
-* **DB Subnet (10.0.3.0/24)** → Protected data layer
-
-![Web Subnet](screenshots/03-web-subnet.png)
-
-![App Subnet](screenshots/04-app-subnet.png)
-
-![DB Subnet](screenshots/05-db-subnet.png)
+* Web Subnet → `10.0.1.0/24`
+* App Subnet → `10.0.2.0/24`
+* DB Subnet → `10.0.3.0/24`
 
 ![All Subnets](screenshots/06-all-subnets.png)
 
 ---
 
-### 🔹 Network Security Groups (NSGs)
+### 🔹 NSG Security Model
 
-Network Security Groups were configured to control traffic between layers.
+* Web → allows HTTP from Internet
+* App → allows traffic only from Web
+* DB → allows traffic only from App
 
-![NSG Web](screenshots/07-nsg-web-created.png)
-
-![NSG App](screenshots/08-nsg-app-created.png)
-
-![NSG DB](screenshots/09-nsg-db-created.png)
+![NSG Rules](screenshots/10-nsg-web-rules.png)
 
 ---
 
-### 🔹 Security Rules
+## 💻 Web Layer (Nginx Servers)
 
-* Web subnet allows HTTP traffic from the internet
-* App subnet allows traffic only from the web subnet
-* DB subnet allows traffic only from the application subnet
+Two Ubuntu VMs were deployed:
 
-![NSG Web Rules](screenshots/10-nsg-web-rules.png)
+* `vm-web-1`
+* `vm-web-2`
 
-![NSG App Rules](screenshots/11-nsg-app-rules.png)
-
-![NSG DB Rules](screenshots/12-nsg-db-rules.png)
-
----
-
-### 🔹 NSG Association
-
-Each NSG was linked to its respective subnet.
-
-![NSG Association](screenshots/13-nsg-subnet-association.png)
-
----
-
-## 💻 Web Server Deployment
-
-### 🔹 Virtual Machines
-
-Two Ubuntu servers were deployed:
-
-* vm-web-1
-* vm-web-2
-
-![VM Web 1 Setup](screenshots/14-vm-web-1-basics.png)
-
-![VM Web 1 Network](screenshots/15-vm-web-1-network.png)
-
----
-
-### 🔹 Install Nginx
+### 🔹 Setup
 
 ```bash
 sudo apt update
 sudo apt install nginx -y
 sudo systemctl start nginx
-sudo systemctl enable nginx
 ```
 
-![Nginx Installed](screenshots/17-nginx-installed.png)
-
----
-
-### 🔹 Custom Web Interface
-
-Each server displays a unique page:
-
-* Web Server 1 → primary
-* Web Server 2 → redundancy
-
-![Web Server 1](screenshots/19-vm-web-1-custom-page.png)
-
-![Web Server 2](screenshots/21-vm-web-2-custom-page.png)
+![Nginx](screenshots/17-nginx-installed.png)
 
 ---
 
 ### 🔹 Purpose
 
-* Enables load balancing
-* Provides redundancy
-* Simulates production environment
+* Load balancing
+* Redundancy
+* Entry point for users
 
 ---
 
-## ⚖️ Load Balancer Configuration
+## ⚖️ Load Balancer
 
-### 🔹 Overview
+Azure Load Balancer distributes incoming traffic across both web servers.
 
-Azure Load Balancer distributes traffic across both web servers.
+### 🔹 Features
 
-![Load Balancer](screenshots/22-load-balancer-basics.png)
+* Backend Pool → 2 web servers
+* Health Probe → HTTP (port 80)
+* Rule → Port 80 traffic distribution
 
----
-
-### 🔹 Backend Pool
-
-* vm-web-1
-* vm-web-2
-
-![Backend Pool](screenshots/24-backend-pool.png)
+![LB](screenshots/22-load-balancer-basics.png)
 
 ---
 
-### 🔹 Health Probe
+## 💻 Application Layer (Java System)
 
-* HTTP
-* Port 80
+### 🔹 Deployment
 
-![Health Probe](screenshots/25-health-probe.png)
-
----
-
-### 🔹 Load Balancing Rule
-
-Traffic on port 80 is balanced across servers.
-
-![LB Rule](screenshots/26-load-balancer-rule.png)
-
----
-
-### 🔹 Testing
-
-Refreshing shows different servers responding.
-
-![LB Test 1](screenshots/27-load-balancer-test-1.png)
-
-![LB Test 2](screenshots/28-load-balancer-test-2.png)
-
----
-
-## 💻 Application Layer Deployment
-
-### 🔹 Setup
-
-Application server deployed in App Subnet:
-
-* vm-app-1
-* Ubuntu Server
-
-![App VM Setup](screenshots/29-vm-app-basics.png)
-
-![App VM Network](screenshots/30-vm-app-network.png)
-
-![App Connected](screenshots/31-vm-app-connected.png)
-
----
-
-### 🔹 Install Java
+* VM: `vm-app-1`
+* Installed Java:
 
 ```bash
-sudo apt update
 sudo apt install openjdk-17-jdk -y
-java -version
 ```
-
-![Java Installed](screenshots/32-java-installed.png)
 
 ---
 
-### 🔹 Deploy Project
+### 🔹 Run Application
 
 ```bash
-git clone https://github.com/mr-h4cker/helpdesk-ticket-system-azure.git
-cd helpdesk-ticket-system-azure
-
-wget https://repo1.maven.org/maven2/com/microsoft/sqlserver/mssql-jdbc/12.8.1.jre11/mssql-jdbc-12.8.1.jre11.jar
-```
-
-![Clone + Driver](screenshots/33-git-clone-and-jdbc-driver.png)
-
----
-
-### 🔹 Compile & Run
-
-```bash
-mkdir -p out
 javac -cp "mssql-jdbc-12.8.1.jre11.jar" -d out $(find src -name "*.java")
 java -cp "out:mssql-jdbc-12.8.1.jre11.jar" Main
 ```
 
-![Compile](screenshots/34-compile-project.png)
+![App Running](screenshots/36-app-connected-success.png)
 
 ---
 
-### 🔹 Success
-
-Application connects to Azure SQL and runs successfully.
-
-![Success](screenshots/36-app-connected-success.png)
-
----
-
-## 🪟 Identity Services (Active Directory & DNS)
-
-### 🔹 Overview
-
-A Windows Server VM was deployed to simulate enterprise identity and internal DNS services.
-
----
-
-### 🔹 DNS Integration
-
-Internal DNS was configured to allow communication using hostnames instead of IP addresses.
-
-* `appserver.itinfra.local`
-* `web1.itinfra.local`
-* `web2.itinfra.local`
-
-![DNS Records](screenshots/47-dns-records-created.png)
-
----
-
-### 🔹 Linux DNS Configuration
-
-The application server was configured to use the Windows Server as its DNS resolver.
-
-![DNS Config Linux](screenshots/48-dns-config-linux.png)
-
----
-
-### 🔹 DNS Resolution Testing
-
-Connectivity was verified using hostnames.
-
-![DNS Test](screenshots/49-dns-resolution-test.png)
-
----
-
-### 🔹 Note on Azure SQL
-
-Azure SQL is accessed using its FQDN:
-
-```
-<server-name>.database.windows.net
-```
-
----
+## 🗄️ Azure SQL Database
 
 ### 🔹 Purpose
 
-* Provides internal name resolution
-* Simulates enterprise DNS
-* Enables hostname-based communication
+* Persistent storage
+* Managed cloud database
+* Scalable and reliable
 
 ---
 
-## 🛠️ Troubleshooting & Challenges
-
-### 🔹 JDBC Driver Issue
-
-The application initially failed due to missing JDBC driver.
-
----
-
-### 🔹 Azure SQL Firewall Issue
-
-Application could not connect due to blocked IP.
-
-![Firewall Error](screenshots/35-sql-firewall-error.png)
-
-**Fix:**
-Used:
-
-```bash
-curl ifconfig.me
-```
-
-Added VM IP to Azure firewall.
-
----
-
-### 🔹 DNS Configuration Issue
-
-Initially used public IPs in DNS records.
-
-**Issue:**
-
-* Name resolved
-* Connection failed
-
-**Fix:**
-
-* Switched to private IPs
-* Verified with:
-
-```bash
-ping appserver.itinfra.local
-```
-
----
-
-### 💡 Key Learnings
-
-* DNS resolution ≠ connectivity
-* Private IPs are required for internal communication
-* Cloud firewall rules must be configured correctly
-* Debugging is a key part of real deployments
-
----
-
-## 🗄️ Azure SQL Database Integration
-
-### 🔹 Overview
-
-Azure SQL was used as the data layer.
-
-![SQL Overview](screenshots/37-azure-sql-overview.png)
-
-![SQL Database](screenshots/38-azure-sql-database.png)
-
----
-
-### 🔹 Firewall Configuration
-
-![SQL Firewall](screenshots/39-sql-firewall-settings.png)
-
----
-
-### 🔹 JDBC Integration
+### 🔹 JDBC Connection
 
 ```java
 jdbc:sqlserver://<server-name>.database.windows.net:1433;
@@ -382,28 +163,51 @@ jdbc:sqlserver://<server-name>.database.windows.net:1433;
 
 ---
 
-### 🔹 Purpose
+## 🪟 Identity Services (AD & DNS)
 
-* Provides persistent storage
-* Separates data layer from application
-* Simulates real cloud database usage
+### 🔹 Why it exists
+
+In real enterprises:
+
+* Systems don’t communicate via IP
+* They use **hostnames + DNS**
 
 ---
+
+### 🔹 Implementation
+
+* Windows Server configured as DNS server
+* Records created:
+
+```text
+appserver.itinfra.local
+web1.itinfra.local
+web2.itinfra.local
+```
+
+---
+
+### 🔹 Result
+
+* Clean internal communication
+* Real enterprise-style networking
+
+---
+
 ## 🔗 End-to-End Application Integration
 
-### 🔹 Overview
+### 🔹 Final System Flow
 
-The system was upgraded from a standalone backend to a fully connected 3-tier architecture.
-
-Traffic flow:
-
-User → Load Balancer → Web Servers → Application Server → Azure SQL Database
+```text
+User → Load Balancer → Web Server (nginx)
+→ Java API → Azure SQL Database
+```
 
 ---
 
-### 🔹 API Development
+### 🔹 Java API Server
 
-The Java Help Desk system was extended to run as a simple HTTP API.
+A lightweight HTTP API was added to expose backend functionality.
 
 ```bash
 java -cp "out:mssql-jdbc-12.8.1.jre11.jar" ApiServer
@@ -413,74 +217,142 @@ java -cp "out:mssql-jdbc-12.8.1.jre11.jar" ApiServer
 
 ---
 
-### 🔹 API Testing
-
-The API was tested directly via browser.
-
-![API Test](screenshots/51-api-browser-test.png)
-
----
-
-### 🔹 Nginx Reverse Proxy
-
-Web servers were configured to forward `/api` requests to the application server.
+### 🔹 Reverse Proxy (Nginx)
 
 ```nginx
 location /api/ {
-    proxy_pass http://appserver.itinfra.local:8080/;
+    proxy_pass http://appserver.itinfra.local:8080/api/;
 }
 ```
 
-![Nginx Config](screenshots/52-nginx-proxy-config.png)
+This connects the web layer to the application layer.
+
+![Proxy Config](screenshots/52-nginx-proxy-config.png)
 
 ---
 
-### 🔹 Full System Flow
-
-The complete system was tested through the Load Balancer.
+### 🔹 Full Flow Test
 
 ![Full Flow](screenshots/53-full-flow-working.png)
 
 ---
 
-### 🔹 Impact
+## 🔥 Live Data Display (FINAL UPGRADE)
 
-* Connected all layers of the architecture
-* Enabled real application access through web layer
-* Demonstrated reverse proxy configuration
-* Simulated production-level system flow
+### 🔹 What was added
+
+The web interface was upgraded to fetch real-time data from the backend API.
 
 ---
 
+### 🔹 Flow
 
+```text
+Browser → Web Server → API → Azure SQL
+```
 
-## 🎯 Objectives
+---
 
-* Simulate enterprise IT infrastructure
-* Apply networking and security concepts
-* Deploy real applications in cloud
-* Implement high availability architecture
+### 🔹 Implementation
+
+* `/api/tickets` returns JSON from database
+* JavaScript `fetch()` used in frontend
+* Data rendered dynamically
+
+---
+
+### 🔹 Output
+
+![UI Top](screenshots/55-helpdesk-web-ui-top.png)
+
+![UI Bottom](screenshots/56-helpdesk-web-ui-bottom.png)
+
+---
+
+### 🔹 Result
+
+* Web page is no longer static
+* Displays real database records
+* Full 3-tier architecture working end-to-end
+
+---
+
+## 🛠️ Troubleshooting & Challenges
+
+### 🔹 Azure SQL Firewall Issue
+
+* VM could not access database
+
+**Fix:**
+
+```bash
+curl ifconfig.me
+```
+
+Added VM IP to Azure firewall.
+
+---
+
+### 🔹 DNS Issue
+
+* Used public IP instead of private
+
+**Fix:**
+
+* Switched to private IP
+* Verified using `ping`
+
+---
+
+### 🔹 JSON Parsing Issue
+
+* API returned invalid JSON
+
+**Fix:**
+
+* Corrected closing bracket `]` in response
+
+---
+
+### 🔹 Nginx Proxy Issue
+
+* 404 error due to incorrect path
+
+**Fix:**
+
+```nginx
+proxy_pass http://appserver.itinfra.local:8080/api/;
+```
+
+---
+
+## 🎯 Objectives Achieved
+
+* Built full 3-tier cloud architecture
+* Integrated networking, security, and application layers
+* Connected frontend → backend → database
+* Simulated real enterprise deployment
 
 ---
 
 ## 🧰 Skills Demonstrated
 
 * Azure Networking (VNet, Subnets, NSG)
-* Linux Server Administration
-* Windows Server (AD & DNS)
-* Load Balancing & High Availability
-* Java Deployment & Debugging
-* JDBC & Database Connectivity
-* Azure SQL Database
+* Linux Administration (nginx, systemctl)
+* Windows Server (DNS, AD)
+* Load Balancing
+* Java Backend Development
+* JDBC Database Integration
+* Azure SQL
 * Cloud Troubleshooting
 
 ---
 
 ## 🚀 Future Improvements
 
-* Convert Help Desk CLI into web-based application (Spring Boot API)
-* Integrate web layer with application layer
-* Implement Azure Private Endpoint for SQL
-* Add monitoring and alerting
+* Convert API to Spring Boot
+* Add authentication (AD integration)
+* Use Private Endpoint for SQL
+* Add monitoring (Azure Monitor)
 
 ---
