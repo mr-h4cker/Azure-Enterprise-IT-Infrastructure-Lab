@@ -389,6 +389,70 @@ jdbc:sqlserver://<server-name>.database.windows.net:1433;
 * Simulates real cloud database usage
 
 ---
+## 🔗 End-to-End Application Integration
+
+### 🔹 Overview
+
+The system was upgraded from a standalone backend to a fully connected 3-tier architecture.
+
+Traffic flow:
+
+User → Load Balancer → Web Servers → Application Server → Azure SQL Database
+
+---
+
+### 🔹 API Development
+
+The Java Help Desk system was extended to run as a simple HTTP API.
+
+```bash
+java -cp "out:mssql-jdbc-12.8.1.jre11.jar" ApiServer
+```
+
+![API Running](screenshots/50-api-server-running.png)
+
+---
+
+### 🔹 API Testing
+
+The API was tested directly via browser.
+
+![API Test](screenshots/51-api-browser-test.png)
+
+---
+
+### 🔹 Nginx Reverse Proxy
+
+Web servers were configured to forward `/api` requests to the application server.
+
+```nginx
+location /api/ {
+    proxy_pass http://appserver.itinfra.local:8080/;
+}
+```
+
+![Nginx Config](screenshots/52-nginx-proxy-config.png)
+
+---
+
+### 🔹 Full System Flow
+
+The complete system was tested through the Load Balancer.
+
+![Full Flow](screenshots/53-full-flow-working.png)
+
+---
+
+### 🔹 Impact
+
+* Connected all layers of the architecture
+* Enabled real application access through web layer
+* Demonstrated reverse proxy configuration
+* Simulated production-level system flow
+
+---
+
+
 
 ## 🎯 Objectives
 
