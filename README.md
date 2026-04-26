@@ -1,29 +1,38 @@
 # Azure Enterprise Help Desk Infrastructure (3-Tier Cloud System)
 
-## 📌 Overview
+---
 
-This project demonstrates the design and implementation of a **real-world, enterprise-style IT infrastructure** on Microsoft Azure.
+## 🎯 Recruiter Summary
 
-The goal was not just to deploy cloud resources, but to build a **fully connected system** where:
+Built and deployed a **cloud-based 3-tier IT support system** on Microsoft Azure using:
 
-* Users interact with a web interface
-* Requests pass through a load-balanced web layer
-* A backend application processes the request
-* Data is retrieved from a cloud database
+* Azure Virtual Networks, Subnets, and NSGs
+* Linux (nginx) web servers with load balancing
+* Java backend API (Help Desk system)
+* Azure SQL Database
+* Windows Server (DNS / domain services)
+* Real-world troubleshooting and debugging
 
-The backend system used in this project is a **custom-built Java Help Desk Ticket Management System**, integrated into Azure.
+This project demonstrates how modern enterprise systems connect **networking + backend + database + web interface** into a working solution.
 
 ---
 
-## 🚀 What This Project Demonstrates
+## 📌 Project Overview
 
-* End-to-end cloud system design
-* Network segmentation using subnets
-* Load balancing and high availability
-* Backend API development (Java)
-* Database integration (Azure SQL)
-* Internal DNS-based communication
-* Real-world debugging and troubleshooting
+This project was designed to simulate a **real enterprise IT environment**, not just a basic cloud lab.
+
+Instead of deploying isolated components, the goal was to build a **fully connected system** where:
+
+* Users access a web interface
+* Requests flow through a load-balanced web layer
+* A backend API processes the request
+* Data is retrieved from a cloud database
+
+Final system flow:
+
+```text
+User → Load Balancer → Web Server → Java API → Azure SQL Database
+```
 
 ---
 
@@ -33,39 +42,50 @@ The backend system used in this project is a **custom-built Java Help Desk Ticke
 
 ---
 
-## 🏗️ Architecture Summary
+## 🏗️ Architecture Overview
 
 ### 🔹 Web Layer
 
-* Two Linux VMs (`vm-web-1`, `vm-web-2`)
+* Two Ubuntu VMs (`vm-web-1`, `vm-web-2`)
 * Running nginx
 * Behind Azure Load Balancer
 
 ### 🔹 Application Layer
 
-* Java Help Desk system on `vm-app-1`
-* Exposes API endpoints
+* Java-based Help Desk system (`vm-app-1`)
+* Exposes REST-like API endpoints
 
 ### 🔹 Data Layer
 
-* Azure SQL Database
+* Azure SQL Database (managed service)
 
 ### 🔹 Identity & Networking
 
-* Windows Server (DNS)
+* Windows Server for DNS and domain services
 * Internal hostname-based communication
+
+### 🔹 Security
+
+* NSGs restrict traffic between layers
+* Segmented subnets for isolation
 
 ---
 
-## 🔄 End-to-End Traffic Flow
+## 🔄 End-to-End System Flow
 
-```text id="h6z42q"
-User → Load Balancer → Web Server → Java API → Azure SQL Database
+```text
+1. User opens web page
+2. Request hits Azure Load Balancer
+3. Routed to one of the nginx web servers
+4. Nginx forwards /api requests to app server
+5. Java API processes request
+6. Data fetched from Azure SQL
+7. Response returned to browser
 ```
 
 ---
 
-## 🌐 Network Configuration
+## 🌐 Network Design
 
 ### 🔹 Virtual Network
 
@@ -79,17 +99,17 @@ User → Load Balancer → Web Server → Java API → Azure SQL Database
 
 ### 🔹 Security (NSGs)
 
-* Web allows HTTP from internet
-* App allows only Web subnet
-* DB allows only App subnet
+* Web → Allows HTTP from internet
+* App → Allows only Web subnet
+* DB → Allows only App subnet
 
 ---
 
-## 💻 Web Layer (Nginx)
+## 💻 Web Layer (nginx)
 
 ### 🔹 Setup
 
-```bash id="q3z3v1"
+```bash
 sudo apt update
 sudo apt install nginx -y
 sudo systemctl start nginx
@@ -98,55 +118,50 @@ sudo systemctl start nginx
 ### 🔹 Role
 
 * Entry point for users
-* Reverse proxy to backend
-* Load-balanced across servers
+* Reverse proxy to backend API
+* Load-balanced across two servers
 
 ---
 
 ## ⚖️ Load Balancer
 
 * Distributes traffic across web servers
-* Provides redundancy
-* Ensures high availability
+* Uses health probes for availability
+* Ensures high availability and redundancy
 
 ---
 
-## 🧩 Help Desk System (Backend Application Source)
+## 🧩 Backend System (Help Desk Application)
 
-The backend application used in this project was built as a separate project:
+⚠️ **Important:**
+This repository contains the **infrastructure**.
+
+The backend application comes from a separate project:
 
 👉 https://github.com/mr-h4cker/helpdesk-ticket-system-azure
 
 ---
 
-### 🔹 What it is
+### 🔹 What the system does
 
-A **Java-based Help Desk Ticket Management System** that simulates real-world IT support workflows:
+A Java-based Help Desk system that simulates:
 
 * Ticket creation
 * Status tracking
-* Priority management
-* Issue monitoring
+* Priority handling
+* Issue management
 
 ---
 
-### 🔹 Why it was used
+### 🔹 Why this matters
 
-Instead of using dummy data, this project integrates a **real backend system** to simulate:
+Instead of using dummy data, this project integrates a **real backend system**:
 
-```text id="q1eh2n"
-User issue → Ticket → Database → API → Web UI
+```text
+User request → Ticket system → Database → API → Web UI
 ```
 
----
-
-### 🔹 What it adds
-
-```text id="1v44i6"
-✔ Real backend logic
-✔ Real database interaction
-✔ Real enterprise workflow
-```
+This makes the project **realistic and production-like**.
 
 ---
 
@@ -154,7 +169,7 @@ User issue → Ticket → Database → API → Web UI
 
 ### 🔹 Deployment
 
-```bash id="ntptn7"
+```bash
 git clone https://github.com/mr-h4cker/helpdesk-ticket-system-azure.git
 cd helpdesk-ticket-system-azure
 ```
@@ -163,7 +178,7 @@ cd helpdesk-ticket-system-azure
 
 ### 🔹 Compile & Run
 
-```bash id="xxtzyt"
+```bash
 mkdir -p out
 javac -cp "mssql-jdbc-12.8.1.jre11.jar" -d out $(find src -name "*.java")
 java -cp "out:mssql-jdbc-12.8.1.jre11.jar" ApiServer
@@ -173,7 +188,7 @@ java -cp "out:mssql-jdbc-12.8.1.jre11.jar" ApiServer
 
 ### 🔹 API Endpoints
 
-```text id="k6l2q9"
+```text
 /api/health
 /api/tickets
 ```
@@ -182,30 +197,29 @@ java -cp "out:mssql-jdbc-12.8.1.jre11.jar" ApiServer
 
 ## 🗄️ Azure SQL Database
 
-### 🔹 Purpose
-
-* Stores ticket data
-* Managed cloud database
+* Stores Help Desk ticket data
+* Managed cloud service
 
 ### 🔹 Connection
 
-```java id="uj1ytc"
+```java
 jdbc:sqlserver://<server-name>.database.windows.net:1433;
 ```
 
 ---
 
-## 🪟 Identity Services (DNS)
+## 🪟 Windows Server (DNS & Domain Services)
 
-### 🔹 Why it matters
+### 🔹 What is actually used
 
-Systems communicate using **hostnames**, not IP addresses.
+* DNS is actively used for internal communication
+* Domain services are configured but not fully integrated yet
 
 ---
 
-### 🔹 DNS Records
+### 🔹 DNS Setup
 
-```text id="1fptc6"
+```text
 appserver.itinfra.local
 web1.itinfra.local
 web2.itinfra.local
@@ -213,11 +227,19 @@ web2.itinfra.local
 
 ---
 
+### 🔹 Why this matters
+
+* Systems communicate using hostnames
+* Not hardcoded IP addresses
+* Matches real enterprise environments
+
+---
+
 ## 🔗 End-to-End Integration
 
 ### 🔹 Nginx Reverse Proxy
 
-```nginx id="cz7o1l"
+```nginx
 location /api/ {
     proxy_pass http://appserver.itinfra.local:8080/api/;
 }
@@ -227,23 +249,22 @@ location /api/ {
 
 ### 🔹 Result
 
-* Web servers connect to API
-* API connects to database
-* Full system works together
+* Web → API → Database fully connected
+* All layers working together
 
 ---
 
-## 🔥 Live Ticket Data (FINAL FEATURE)
+## 🔥 Live Data Display (FINAL FEATURE)
 
 ### 🔹 What was built
 
-The web interface dynamically loads real ticket data from Azure SQL.
+The web interface dynamically loads ticket data from Azure SQL.
 
 ---
 
 ### 🔹 Flow
 
-```text id="zdfgq1"
+```text
 Browser → Web → API → Azure SQL
 ```
 
@@ -251,7 +272,7 @@ Browser → Web → API → Azure SQL
 
 ### 🔹 Output
 
-![UI Top](screenshots/55-helpdesk-web-top.png)
+![UI Top](screenshots/55-helpdesk-web-ui-top.png)
 
 ![UI Bottom](screenshots/56-helpdesk-web-ui-bottom.png)
 
@@ -259,9 +280,8 @@ Browser → Web → API → Azure SQL
 
 ### 🔹 Result
 
-```text id="9bp0ek"
-Static page ❌ → Dynamic system ✔
-```
+* Static page → Dynamic application
+* Real database data displayed in browser
 
 ---
 
@@ -269,49 +289,60 @@ Static page ❌ → Dynamic system ✔
 
 ### 🔹 Azure SQL Firewall
 
-* Blocked VM access
-* Fixed using VM public IP
+* VM could not connect
+* Fixed using public IP:
 
-```bash id="1ntt8y"
+```bash
 curl ifconfig.me
 ```
 
 ---
 
-### 🔹 DNS Issue
+### 🔹 DNS Misconfiguration
 
 * Used public IP instead of private
 * Fixed DNS records
 
 ---
 
-### 🔹 JSON Error
+### 🔹 Nginx Proxy Issue
+
+* 404 error due to wrong path
+* Fixed proxy configuration
+
+---
+
+### 🔹 JSON Parsing Issue
 
 * Invalid API response
 * Fixed JSON formatting
 
 ---
 
-### 🔹 Nginx Proxy
+## 📚 What I Learned
 
-* 404 due to incorrect path
-* Fixed proxy_pass
+* How cloud networking actually works (VNet, NSGs, subnets)
+* Difference between public vs private IP communication
+* How reverse proxies connect frontend and backend
+* How real systems use DNS instead of IPs
+* Importance of debugging in cloud environments
+* How different layers (web, app, database) interact
 
 ---
 
 ## 🎯 Key Achievements
 
-* Built full 3-tier system
-* Integrated frontend, backend, and database
-* Implemented real networking concepts
-* Debugged real cloud issues
+* Built full 3-tier architecture
+* Connected frontend, backend, and database
+* Implemented real enterprise patterns
+* Solved real-world cloud issues
 
 ---
 
 ## 🧰 Skills Demonstrated
 
-* Azure Networking (VNet, NSG)
-* Linux Administration (nginx)
+* Azure Networking (VNet, NSG, Subnets)
+* Linux (nginx, systemctl)
 * Windows Server (DNS)
 * Load Balancing
 * Java Backend Development
@@ -323,23 +354,23 @@ curl ifconfig.me
 ## 🚀 Future Improvements
 
 * Convert API to Spring Boot
-* Add authentication (AD integration)
+* Add authentication using Active Directory
 * Use Private Endpoint for SQL
-* Add monitoring
+* Add monitoring and alerts
 
 ---
 
 ## 💬 Project Story
 
-This project started as a simple Azure infrastructure lab.
+This project started as a basic Azure lab.
 
-Instead of stopping there, I extended it into a **fully working system** by:
+Instead of stopping there, it was extended into a **fully working system** by:
 
 * Adding a real backend application
 * Connecting it to a cloud database
-* Integrating it into the web layer
+* Integrating it with the web layer
 * Displaying real data in the browser
 
-This helped me understand how individual components connect to form a real-world system.
+This helped develop a deeper understanding of how **real systems are built and connected**, not just deployed.
 
 ---
